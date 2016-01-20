@@ -4,22 +4,19 @@ import fs from 'fs';
 import Progress from 'progress';
 import request from './request';
 
-const wordLength = 5;
-const wordsPerFile = 10000;
-const characters = 'abcdef';
-const randomFiles = 10000;
+const wordsPerFile = 150000;
+const randomFiles = 100;
 const fileDirectory = '../files';
+
+const label = 'index creation';
 
 const deleteIndex = () => request('/index', {}, 'delete');
 const createIndex = () => request('/index', {}, 'put');
 const addFile = (file) => () => request('/index/files', { body: file }, 'post');
 
 const getRandomWord = () => {
-  let word = '';
-  while (word.length < wordLength) {
-    word += characters[Math.floor((Math.random() * 100) % characters.length)];
-  }
-  return word;
+  let length = 2 + Math.random() * 10;
+  return Math.random().toString(36).substring(2, 2 + length);
 };
 
 const getRandomFile = () => {
@@ -52,6 +49,7 @@ export default () => {
     { total: randomFiles }
   );
 
+  console.time(label);
   let result = deleteIndex().then(createIndex);
 
   for (let i = 0; i < randomFiles; i++) {
@@ -61,5 +59,7 @@ export default () => {
     result = result.then(addFile(file)).then(() => uploadProgress.tick());
   }
 
-  return result;
+  return result.then(() => {
+    console.timeEnd(label);
+  });
 };

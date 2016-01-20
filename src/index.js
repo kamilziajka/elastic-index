@@ -3,7 +3,7 @@
 import init from './init';
 import request from './request';
 
-const label = 'timer';
+const label = 'search';
 
 const search = (words) => {
   console.time(label);
